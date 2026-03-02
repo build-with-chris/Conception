@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type { IdeaRow } from "@/lib/supabase/database.types";
+
 import EmptyState from "./EmptyState";
 import IdeaCard, { type Idea } from "./IdeaCard";
 import QuickAddModal from "./QuickAddModal";
@@ -118,16 +119,11 @@ export default function GrundideenBoard({ selectedIdeaId, onSelectIdea }: Props)
     if (!formTitle.trim()) return;
     const tags = formTags.split(",").map((t) => t.trim()).filter(Boolean);
     if (editingIdea) {
-      await supabase
-        .from("ideas")
-        .update({ title: formTitle.trim(), summary: formSummary.trim(), tags })
-        .eq("id", editingIdea.id);
+      // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
+      await supabase.from("ideas").update({ title: formTitle.trim(), summary: formSummary.trim(), tags }).eq("id", editingIdea.id);
     } else {
-      await supabase.from("ideas").insert({
-        title: formTitle.trim(),
-        summary: formSummary.trim(),
-        tags,
-      });
+      // @ts-expect-error Supabase client infers .insert() arg as never with generic Database type
+      await supabase.from("ideas").insert({ title: formTitle.trim(), summary: formSummary.trim(), tags });
     }
     await fetchIdeas();
     setModalOpen(false);
@@ -141,10 +137,8 @@ export default function GrundideenBoard({ selectedIdeaId, onSelectIdea }: Props)
   };
 
   const handleToggleFavorite = async (idea: Idea) => {
-    await supabase
-      .from("ideas")
-      .update({ favorite: !idea.favorite })
-      .eq("id", idea.id);
+    // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
+    await supabase.from("ideas").update({ favorite: !idea.favorite }).eq("id", idea.id);
     await fetchIdeas();
   };
 

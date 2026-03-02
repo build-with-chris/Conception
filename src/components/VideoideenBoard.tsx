@@ -91,7 +91,7 @@ export default function VideoideenBoard({
 
   const fetchIdeas = useCallback(async () => {
     const { data } = await supabase.from("ideas").select("id, title").order("title");
-    setIdeas((data ?? []).map((r) => ({ id: r.id, title: r.title })));
+    setIdeas((data ?? []) as { id: string; title: string }[]);
   }, []);
 
   useEffect(() => {
@@ -149,8 +149,10 @@ export default function VideoideenBoard({
       tags,
     };
     if (editingItem) {
+      // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
       await supabase.from("video_ideas").update(payload).eq("id", editingItem.id);
     } else {
+      // @ts-expect-error Supabase client infers .insert() arg as never with generic Database type
       await supabase.from("video_ideas").insert(payload);
     }
     await fetchVideoIdeas();
@@ -164,15 +166,14 @@ export default function VideoideenBoard({
   };
 
   const handleStatusChange = async (item: VideoIdea, status: VideoIdeaStatus) => {
+    // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
     await supabase.from("video_ideas").update({ status }).eq("id", item.id);
     await fetchVideoIdeas();
   };
 
   const handleToggleFavorite = async (item: VideoIdea) => {
-    await supabase
-      .from("video_ideas")
-      .update({ favorite: !item.favorite })
-      .eq("id", item.id);
+    // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
+    await supabase.from("video_ideas").update({ favorite: !item.favorite }).eq("id", item.id);
     await fetchVideoIdeas();
   };
 

@@ -58,11 +58,10 @@ export default function PillarPanel() {
   const handleSavePillar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (pillar?.id) {
-      await supabase
-        .from("pillars")
-        .update({ leitbild: editLeitbild, annahmen: editAnnahmen })
-        .eq("id", pillar.id);
+      // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
+      await supabase.from("pillars").update({ leitbild: editLeitbild, annahmen: editAnnahmen }).eq("id", pillar.id);
     } else {
+      // @ts-expect-error Supabase client infers .insert() arg as never with generic Database type
       await supabase.from("pillars").insert({ leitbild: editLeitbild, annahmen: editAnnahmen });
     }
     await fetchPillar();
