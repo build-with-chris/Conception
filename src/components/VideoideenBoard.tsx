@@ -83,6 +83,10 @@ export default function VideoideenBoard({
   const [formStatus, setFormStatus] = useState<VideoIdeaStatus>("idee");
   const [formIdeaId, setFormIdeaId] = useState<string>("");
   const [formTags, setFormTags] = useState("");
+  const [formSkizzeNotes, setFormSkizzeNotes] = useState("");
+  const [formSkizzeTodos, setFormSkizzeTodos] = useState<string[]>([]);
+  const [formSkizzeNewTodo, setFormSkizzeNewTodo] = useState("");
+  const [formSkizzeComment, setFormSkizzeComment] = useState("");
   const [skizzeModalItem, setSkizzeModalItem] = useState<VideoIdea | null>(null);
 
   const fetchVideoIdeas = useCallback(async () => {
@@ -129,6 +133,9 @@ export default function VideoideenBoard({
     setFormStatus("idee");
     setFormIdeaId(selectedIdeaId ?? "");
     setFormTags("");
+    setFormSkizzeNotes("");
+    setFormSkizzeTodos([]);
+    setFormSkizzeComment("");
     setModalOpen(true);
   };
 
@@ -139,6 +146,9 @@ export default function VideoideenBoard({
     setFormStatus(item.status);
     setFormIdeaId(item.idea_id ?? "");
     setFormTags(item.tags?.join(", ") ?? "");
+    setFormSkizzeNotes(item.skizze_notes ?? "");
+    setFormSkizzeTodos(item.skizze_todos ?? []);
+    setFormSkizzeComment(item.skizze_comment ?? "");
     setModalOpen(true);
   };
 
@@ -146,13 +156,18 @@ export default function VideoideenBoard({
     e.preventDefault();
     if (!formTitle.trim()) return;
     const tags = formTags.split(",").map((t) => t.trim()).filter(Boolean);
-    const payload = {
+    const payload: Record<string, unknown> = {
       title: formTitle.trim(),
       note: formNote.trim() || null,
       status: formStatus,
       idea_id: formIdeaId || null,
       tags,
     };
+    if (formStatus === "skizze") {
+      payload.skizze_notes = formSkizzeNotes.trim() || null;
+      payload.skizze_todos = formSkizzeTodos;
+      payload.skizze_comment = formSkizzeComment.trim() || null;
+    }
     if (editingItem) {
       // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
       await supabase.from("video_ideas").update(payload).eq("id", editingItem.id);
@@ -162,6 +177,18 @@ export default function VideoideenBoard({
     }
     await fetchVideoIdeas();
     setModalOpen(false);
+  };
+
+  const addSkizzeTodo = () => {
+    const t = formSkizzeNewTodo.trim();
+    if (t) {
+      setFormSkizzeTodos((prev) => [...prev, t]);
+      setFormSkizzeNewTodo("");
+    }
+  };
+
+  const removeSkizzeTodo = (index: number) => {
+    setFormSkizzeTodos((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleDelete = async (item: VideoIdea) => {
@@ -354,6 +381,82 @@ export default function VideoideenBoard({
               ))}
             </select>
           </div>
+          {formStatus === "skizze" && (
+            <>
+              <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/30">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  Skizze-Details
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="edit-skizze-notes" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      Ausführliche Notizen
+                    </label>
+                    <textarea
+                      id="edit-skizze-notes"
+                      value={formSkizzeNotes}
+                      onChange={(e) => setFormSkizzeNotes(e.target.value)}
+                      rows={4}
+                      placeholder="Konzept, Ablauf, Besonderheiten …"
+                      className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      To-dos
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={formSkizzeNewTodo}
+                        onChange={(e) => setFormSkizzeNewTodo(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkizzeTodo())}
+                        placeholder="To-do eingeben, Enter oder + To-do"
+                        className="flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                      />
+                      <button
+                        type="button"
+                        onClick={addSkizzeTodo}
+                        className="shrink-0 rounded-lg bg-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600"
+                      >
+                        + To-do
+                      </button>
+                    </div>
+                    {formSkizzeTodos.length > 0 && (
+                      <ul className="mt-2 space-y-1.5">
+                        {formSkizzeTodos.map((todo, i) => (
+                          <li key={i} className="flex items-center gap-2 rounded-lg bg-zinc-100 px-3 py-2 text-sm dark:bg-zinc-800">
+                            <span className="flex-1">{todo}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeSkizzeTodo(i)}
+                              className="rounded p-1 text-zinc-500 hover:bg-zinc-200 hover:text-red-600 dark:hover:bg-zinc-700"
+                              aria-label="To-do entfernen"
+                            >
+                              ✕
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor="edit-skizze-comment" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      Kommentar
+                    </label>
+                    <textarea
+                      id="edit-skizze-comment"
+                      value={formSkizzeComment}
+                      onChange={(e) => setFormSkizzeComment(e.target.value)}
+                      rows={2}
+                      placeholder="Anmerkungen, Hinweise …"
+                      className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
           <div>
             <label htmlFor="video-tags" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
               Tags (kommagetrennt, optional)
