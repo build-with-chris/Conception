@@ -7,6 +7,7 @@ import type { VideoIdeaRow } from "@/lib/supabase/database.types";
 import EmptyState from "./EmptyState";
 import QuickAddModal from "./QuickAddModal";
 import SearchFilterBar, { type FilterOption } from "./SearchFilterBar";
+import SkizzeModal from "./SkizzeModal";
 import VideoIdeaItem, {
   type VideoIdea,
   type VideoIdeaStatus,
@@ -29,6 +30,9 @@ function rowToVideoIdea(r: VideoIdeaRow): VideoIdea {
     tags: r.tags?.length ? r.tags : undefined,
     favorite: r.favorite ?? false,
     updated_at: r.updated_at,
+    skizze_notes: r.skizze_notes ?? undefined,
+    skizze_todos: Array.isArray(r.skizze_todos) ? r.skizze_todos : undefined,
+    skizze_comment: r.skizze_comment ?? undefined,
   };
 }
 
@@ -79,6 +83,7 @@ export default function VideoideenBoard({
   const [formStatus, setFormStatus] = useState<VideoIdeaStatus>("idee");
   const [formIdeaId, setFormIdeaId] = useState<string>("");
   const [formTags, setFormTags] = useState("");
+  const [skizzeModalItem, setSkizzeModalItem] = useState<VideoIdea | null>(null);
 
   const fetchVideoIdeas = useCallback(async () => {
     const { data, error } = await supabase
@@ -166,9 +171,29 @@ export default function VideoideenBoard({
   };
 
   const handleStatusChange = async (item: VideoIdea, status: VideoIdeaStatus) => {
+    if (status === "skizze") {
+      setSkizzeModalItem(item);
+      return;
+    }
     // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
     await supabase.from("video_ideas").update({ status }).eq("id", item.id);
     await fetchVideoIdeas();
+  };
+
+  const handleSkizzeSave = async (
+    itemId: string,
+    data: { notes: string; todos: string[]; comment: string }
+  ) => {
+    const payload = {
+      status: "skizze" as const,
+      skizze_notes: data.notes || null,
+      skizze_todos: data.todos,
+      skizze_comment: data.comment || null,
+    };
+    // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
+    await supabase.from("video_ideas").update(payload).eq("id", itemId);
+    await fetchVideoIdeas();
+    setSkizzeModalItem(null);
   };
 
   const handleToggleFavorite = async (item: VideoIdea) => {
@@ -252,6 +277,7 @@ export default function VideoideenBoard({
               onEdit={openEdit}
               onDelete={handleDelete}
               onStatusChange={handleStatusChange}
+              onMoveToSkizze={(i) => setSkizzeModalItem(i)}
               onToggleFavorite={handleToggleFavorite}
             />
           ))
@@ -343,6 +369,13 @@ export default function VideoideenBoard({
           </div>
         </div>
       </QuickAddModal>
+
+      <SkizzeModal
+        open={!!skizzeModalItem}
+        onClose={() => setSkizzeModalItem(null)}
+        item={skizzeModalItem}
+        onSave={handleSkizzeSave}
+      />
     </section>
   );
 }

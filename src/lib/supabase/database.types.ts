@@ -66,6 +66,9 @@ export interface Database {
           status: VideoIdeaStatus;
           tags: string[];
           favorite: boolean;
+          skizze_notes: string | null;
+          skizze_todos: string[];
+          skizze_comment: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -77,6 +80,9 @@ export interface Database {
           status: VideoIdeaStatus;
           tags?: string[];
           favorite?: boolean;
+          skizze_notes?: string | null;
+          skizze_todos?: string[];
+          skizze_comment?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -88,6 +94,9 @@ export interface Database {
           status?: VideoIdeaStatus;
           tags?: string[];
           favorite?: boolean;
+          skizze_notes?: string | null;
+          skizze_todos?: string[];
+          skizze_comment?: string | null;
           created_at?: string;
           updated_at?: string;
         };

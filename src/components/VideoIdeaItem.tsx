@@ -13,6 +13,9 @@ export type VideoIdea = {
   tags?: string[];
   favorite?: boolean;
   updated_at?: string;
+  skizze_notes?: string | null;
+  skizze_todos?: string[];
+  skizze_comment?: string | null;
 };
 
 const STATUS_LABELS: Record<VideoIdeaStatus, string> = {
@@ -29,10 +32,11 @@ type Props = {
   onEdit?: (item: VideoIdea) => void;
   onDelete?: (item: VideoIdea) => void;
   onStatusChange?: (item: VideoIdea, status: VideoIdeaStatus) => void;
+  onMoveToSkizze?: (item: VideoIdea) => void;
   onToggleFavorite?: (item: VideoIdea) => void;
 };
 
-export default function VideoIdeaItem({ item, onEdit, onDelete, onStatusChange, onToggleFavorite }: Props) {
+export default function VideoIdeaItem({ item, onEdit, onDelete, onStatusChange, onMoveToSkizze, onToggleFavorite }: Props) {
   const otherStatuses = STATUS_OPTIONS.filter((s) => s !== item.status);
 
   return (
@@ -103,13 +107,18 @@ export default function VideoIdeaItem({ item, onEdit, onDelete, onStatusChange, 
         <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
           {STATUS_LABELS[item.status]}
         </span>
-        {onStatusChange && otherStatuses.length > 0 && (
+        {(onStatusChange || onMoveToSkizze) && otherStatuses.length > 0 && (
           <select
             value=""
             onChange={(e) => {
               const v = e.target.value as VideoIdeaStatus;
-              if (v) onStatusChange(item, v);
+              if (!v) return;
               e.target.value = "";
+              if (v === "skizze" && onMoveToSkizze) {
+                onMoveToSkizze(item);
+              } else if (onStatusChange) {
+                onStatusChange(item, v);
+              }
             }}
             className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
             title="Move to …"
