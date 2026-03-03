@@ -62,6 +62,11 @@ export default function VideoIdeaItem({ item, onEdit, onDelete, onStatusChange, 
             ))}
           </div>
         )}
+        {item.status === "skizze" && (item.skizze_notes?.trim() || (item.skizze_todos?.length ?? 0) > 0 || item.skizze_comment?.trim()) && (
+          <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            Ausführliche Notizen & To-dos vorhanden – beim Bearbeiten einsehbar
+          </p>
+        )}
         {item.updated_at && (
           <p className="text-xs text-zinc-400 dark:text-zinc-500">
             Bearbeitet {formatRelativeTime(item.updated_at)}

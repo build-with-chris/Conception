@@ -20,6 +20,13 @@ function rowToIdea(r: IdeaRow): Idea {
   };
 }
 
+function sortIdeasByFavoriteThenUpdated(a: Idea, b: Idea): number {
+  if (Boolean(a.favorite) !== Boolean(b.favorite)) return a.favorite ? -1 : 1;
+  const tA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+  const tB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+  return tB - tA;
+}
+
 function filterIdeas(ideas: Idea[], search: string, activeTagIds: string[]) {
   let out = ideas;
   if (search.trim()) {
@@ -61,7 +68,7 @@ export default function GrundideenBoard({ selectedIdeaId, onSelectIdea }: Props)
       .select("*")
       .order("favorite", { ascending: false })
       .order("updated_at", { ascending: false });
-    if (!error) setIdeas((data ?? []).map(rowToIdea));
+    if (!error) setIdeas((data ?? []).map(rowToIdea).sort(sortIdeasByFavoriteThenUpdated));
     setLoading(false);
   }, []);
 

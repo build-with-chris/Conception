@@ -36,6 +36,13 @@ function rowToVideoIdea(r: VideoIdeaRow): VideoIdea {
   };
 }
 
+function sortVideoIdeasByFavoriteThenUpdated(a: VideoIdea, b: VideoIdea): number {
+  if (Boolean(a.favorite) !== Boolean(b.favorite)) return a.favorite ? -1 : 1;
+  const tA = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+  const tB = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+  return tB - tA;
+}
+
 function filterVideoIdeas(
   items: VideoIdea[],
   search: string,
@@ -95,7 +102,7 @@ export default function VideoideenBoard({
       .select("*")
       .order("favorite", { ascending: false })
       .order("updated_at", { ascending: false });
-    if (!error) setItems((data ?? []).map(rowToVideoIdea));
+    if (!error) setItems((data ?? []).map(rowToVideoIdea).sort(sortVideoIdeasByFavoriteThenUpdated));
   }, []);
 
   const fetchIdeas = useCallback(async () => {
