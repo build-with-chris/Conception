@@ -194,7 +194,7 @@ export default function ProjectBoardPage() {
           Bearbeiten
         </button>
         <div className="ml-auto">
-          <UserButton afterSignOutUrl="/" />
+          <UserButton />
         </div>
       </div>
       <EditProjectModal

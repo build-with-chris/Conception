@@ -63,7 +63,7 @@ export default function ProjectsPage() {
               Wähle ein Projekt oder lege ein neues an. Lesbare URLs: /project/[slug].
             </p>
           </div>
-          <UserButton afterSignOutUrl="/" />
+          <UserButton />
         </div>
         <form onSubmit={handleAddProject} className="mb-10 flex gap-2">
           <input
