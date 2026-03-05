@@ -78,10 +78,8 @@ export default function EditProjectModal({ open, onClose, project, onSaved }: Pr
     if (!passwordProtected) {
       updatePayload.password_hash = null;
     }
-    const { error } = await supabase
-      .from("projects")
-      .update(updatePayload)
-      .eq("id", project.id);
+    // @ts-expect-error Supabase update type inference
+    const { error } = await supabase.from("projects").update(updatePayload).eq("id", project.id);
     if (error) {
       setSaveError(error.message);
       setSaving(false);
