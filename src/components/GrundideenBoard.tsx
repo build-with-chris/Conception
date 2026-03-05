@@ -47,11 +47,12 @@ function filterIdeas(ideas: Idea[], search: string, activeTagIds: string[]) {
 }
 
 type Props = {
+  projectId: string;
   selectedIdeaId: string | null;
   onSelectIdea: (idea: Idea | null) => void;
 };
 
-export default function GrundideenBoard({ selectedIdeaId, onSelectIdea }: Props) {
+export default function GrundideenBoard({ projectId, selectedIdeaId, onSelectIdea }: Props) {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -66,11 +67,12 @@ export default function GrundideenBoard({ selectedIdeaId, onSelectIdea }: Props)
     const { data, error } = await supabase
       .from("ideas")
       .select("*")
+      .eq("project_id", projectId)
       .order("favorite", { ascending: false })
       .order("updated_at", { ascending: false });
     if (!error) setIdeas((data ?? []).map(rowToIdea).sort(sortIdeasByFavoriteThenUpdated));
     setLoading(false);
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     fetchIdeas();
@@ -130,7 +132,7 @@ export default function GrundideenBoard({ selectedIdeaId, onSelectIdea }: Props)
       await supabase.from("ideas").update({ title: formTitle.trim(), summary: formSummary.trim(), tags }).eq("id", editingIdea.id);
     } else {
       // @ts-expect-error Supabase client infers .insert() arg as never with generic Database type
-      await supabase.from("ideas").insert({ title: formTitle.trim(), summary: formSummary.trim(), tags });
+      await supabase.from("ideas").insert({ project_id: projectId, title: formTitle.trim(), summary: formSummary.trim(), tags });
     }
     await fetchIdeas();
     setModalOpen(false);

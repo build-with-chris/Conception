@@ -68,12 +68,14 @@ function filterVideoIdeas(
 }
 
 type Props = {
+  projectId: string;
   selectedIdeaId: string | null;
   selectedIdeaTitle: string | null;
   onClearIdeaFilter: () => void;
 };
 
 export default function VideoideenBoard({
+  projectId,
   selectedIdeaId,
   selectedIdeaTitle,
   onClearIdeaFilter,
@@ -100,15 +102,16 @@ export default function VideoideenBoard({
     const { data, error } = await supabase
       .from("video_ideas")
       .select("*")
+      .eq("project_id", projectId)
       .order("favorite", { ascending: false })
       .order("updated_at", { ascending: false });
     if (!error) setItems((data ?? []).map(rowToVideoIdea).sort(sortVideoIdeasByFavoriteThenUpdated));
-  }, []);
+  }, [projectId]);
 
   const fetchIdeas = useCallback(async () => {
-    const { data } = await supabase.from("ideas").select("id, title").order("title");
+    const { data } = await supabase.from("ideas").select("id, title").eq("project_id", projectId).order("title");
     setIdeas((data ?? []) as { id: string; title: string }[]);
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
     Promise.all([fetchVideoIdeas(), fetchIdeas()]).finally(() => setLoading(false));
@@ -179,6 +182,7 @@ export default function VideoideenBoard({
       // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
       await supabase.from("video_ideas").update(payload).eq("id", editingItem.id);
     } else {
+      payload.project_id = projectId;
       // @ts-expect-error Supabase client infers .insert() arg as never with generic Database type
       await supabase.from("video_ideas").insert(payload);
     }

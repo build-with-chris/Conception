@@ -5,9 +5,39 @@ export type VideoIdeaStatus = "idee" | "skizze" | "produktion" | "fertig";
 export interface Database {
   public: {
     Tables: {
+      projects: {
+        Row: {
+          id: string;
+          title: string;
+          slug: string;
+          created_at: string;
+          updated_at: string;
+          password_protected: boolean;
+          password_hash: string | null;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          slug: string;
+          created_at?: string;
+          updated_at?: string;
+          password_protected?: boolean;
+          password_hash?: string | null;
+        };
+        Update: {
+          id?: string;
+          title?: string;
+          slug?: string;
+          created_at?: string;
+          updated_at?: string;
+          password_protected?: boolean;
+          password_hash?: string | null;
+        };
+      };
       pillars: {
         Row: {
           id: string;
+          project_id: string;
           leitbild: string;
           annahmen: string;
           created_at: string;
@@ -15,6 +45,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          project_id: string;
           leitbild: string;
           annahmen: string;
           created_at?: string;
@@ -22,6 +53,7 @@ export interface Database {
         };
         Update: {
           id?: string;
+          project_id?: string;
           leitbild?: string;
           annahmen?: string;
           created_at?: string;
@@ -31,6 +63,7 @@ export interface Database {
       ideas: {
         Row: {
           id: string;
+          project_id: string;
           title: string;
           summary: string;
           tags: string[];
@@ -40,6 +73,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          project_id: string;
           title: string;
           summary: string;
           tags?: string[];
@@ -49,6 +83,7 @@ export interface Database {
         };
         Update: {
           id?: string;
+          project_id?: string;
           title?: string;
           summary?: string;
           tags?: string[];
@@ -60,6 +95,7 @@ export interface Database {
       video_ideas: {
         Row: {
           id: string;
+          project_id: string;
           idea_id: string | null;
           title: string;
           note: string | null;
@@ -74,6 +110,7 @@ export interface Database {
         };
         Insert: {
           id?: string;
+          project_id: string;
           idea_id?: string | null;
           title: string;
           note?: string | null;
@@ -88,6 +125,7 @@ export interface Database {
         };
         Update: {
           id?: string;
+          project_id?: string;
           idea_id?: string | null;
           title?: string;
           note?: string | null;
@@ -105,6 +143,7 @@ export interface Database {
   };
 }
 
+export type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
 export type PillarRow = Database["public"]["Tables"]["pillars"]["Row"];
 export type IdeaRow = Database["public"]["Tables"]["ideas"]["Row"];
 export type VideoIdeaRow = Database["public"]["Tables"]["video_ideas"]["Row"];

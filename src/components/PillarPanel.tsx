@@ -27,7 +27,9 @@ function AnnahmenList({ text }: { text: string }) {
   );
 }
 
-export default function PillarPanel() {
+type Props = { projectId: string };
+
+export default function PillarPanel({ projectId }: Props) {
   const [pillar, setPillar] = useState<PillarRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
@@ -38,14 +40,16 @@ export default function PillarPanel() {
     const { data, error } = await supabase
       .from("pillars")
       .select("*")
+      .eq("project_id", projectId)
       .order("created_at", { ascending: true })
       .limit(1)
       .maybeSingle();
     if (!error) setPillar(data ?? null);
     setLoading(false);
-  }, []);
+  }, [projectId]);
 
   useEffect(() => {
+    setLoading(true);
     fetchPillar();
   }, [fetchPillar]);
 
@@ -62,7 +66,7 @@ export default function PillarPanel() {
       await supabase.from("pillars").update({ leitbild: editLeitbild, annahmen: editAnnahmen }).eq("id", pillar.id);
     } else {
       // @ts-expect-error Supabase client infers .insert() arg as never with generic Database type
-      await supabase.from("pillars").insert({ leitbild: editLeitbild, annahmen: editAnnahmen });
+      await supabase.from("pillars").insert({ project_id: projectId, leitbild: editLeitbild, annahmen: editAnnahmen });
     }
     await fetchPillar();
     setEditOpen(false);
