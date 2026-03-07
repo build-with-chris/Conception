@@ -7,6 +7,7 @@ type Props = {
   onClose: () => void;
   title: string;
   submitLabel?: string;
+  isSubmitting?: boolean;
   children: React.ReactNode;
   onSubmit: (e: React.FormEvent) => void;
 };
@@ -16,6 +17,7 @@ export default function QuickAddModal({
   onClose,
   title,
   submitLabel = "Hinzufügen",
+  isSubmitting = false,
   children,
   onSubmit,
 }: Props) {
@@ -72,15 +74,17 @@ export default function QuickAddModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              disabled={isSubmitting}
+              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
               Abbrechen
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+              disabled={isSubmitting}
+              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
             >
-              {submitLabel}
+              {isSubmitting ? "…" : submitLabel}
             </button>
           </div>
         </form>

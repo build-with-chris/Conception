@@ -75,6 +75,7 @@ type Props = {
   selectedIdeaId: string | null;
   selectedIdeaTitle: string | null;
   onClearIdeaFilter: () => void;
+  hideSectionTitle?: boolean;
 };
 
 export default function VideoideenBoard({
@@ -82,6 +83,7 @@ export default function VideoideenBoard({
   selectedIdeaId,
   selectedIdeaTitle,
   onClearIdeaFilter,
+  hideSectionTitle,
 }: Props) {
   const [items, setItems] = useState<VideoIdea[]>([]);
   const [ideas, setIdeas] = useState<{ id: string; title: string }[]>([]);
@@ -278,9 +280,12 @@ export default function VideoideenBoard({
         </div>
       )}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-          Videoideen
-        </h2>
+        {!hideSectionTitle && (
+          <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            Videoideen
+          </h2>
+        )}
+        {hideSectionTitle && <span className="min-w-0 flex-1" />}
         {selectedIdeaId && selectedIdeaTitle && (
           <div className="hidden items-center gap-2 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm dark:bg-zinc-800 md:flex">
             <span className="text-zinc-600 dark:text-zinc-400">

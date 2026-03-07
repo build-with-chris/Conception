@@ -50,14 +50,17 @@ type Props = {
   projectId: string;
   selectedIdeaId: string | null;
   onSelectIdea: (idea: Idea | null) => void;
+  /** Kategorie-Titel wird von der Seite gesetzt (z. B. im Karten-Header) */
+  hideSectionTitle?: boolean;
 };
 
-export default function GrundideenBoard({ projectId, selectedIdeaId, onSelectIdea }: Props) {
+export default function GrundideenBoard({ projectId, selectedIdeaId, onSelectIdea, hideSectionTitle }: Props) {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [editingIdea, setEditingIdea] = useState<Idea | null>(null);
   const [formTitle, setFormTitle] = useState("");
   const [formSummary, setFormSummary] = useState("");
@@ -126,16 +129,24 @@ export default function GrundideenBoard({ projectId, selectedIdeaId, onSelectIde
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formTitle.trim()) return;
-    const tags = formTags.split(",").map((t) => t.trim()).filter(Boolean);
-    if (editingIdea) {
-      // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
-      await supabase.from("ideas").update({ title: formTitle.trim(), summary: formSummary.trim(), tags }).eq("id", editingIdea.id);
-    } else {
-      // @ts-expect-error Supabase client infers .insert() arg as never with generic Database type
-      await supabase.from("ideas").insert({ project_id: projectId, title: formTitle.trim(), summary: formSummary.trim(), tags });
+    setSubmitting(true);
+    try {
+      const tags = formTags.split(",").map((t) => t.trim()).filter(Boolean);
+      if (editingIdea) {
+        const { error } = await supabase.from("ideas").update({ title: formTitle.trim(), summary: formSummary.trim(), tags }).eq("id", editingIdea.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("ideas").insert({ project_id: projectId, title: formTitle.trim(), summary: formSummary.trim(), tags });
+        if (error) throw error;
+      }
+      await fetchIdeas();
+      setModalOpen(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Speichern fehlgeschlagen.";
+      alert(message);
+    } finally {
+      setSubmitting(false);
     }
-    await fetchIdeas();
-    setModalOpen(false);
   };
 
   const handleDelete = async (idea: Idea) => {
@@ -160,9 +171,12 @@ export default function GrundideenBoard({ projectId, selectedIdeaId, onSelectIde
   return (
     <section className="flex h-auto min-h-0 flex-col gap-3 md:h-full md:gap-5">
       <div className="flex shrink-0 items-center justify-between">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-          Grundideen
-        </h2>
+        {!hideSectionTitle && (
+          <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            Grundideen
+          </h2>
+        )}
+        {hideSectionTitle && <span className="flex-1" />}
         <button
           type="button"
           onClick={openAdd}
@@ -216,6 +230,7 @@ export default function GrundideenBoard({ projectId, selectedIdeaId, onSelectIde
         onClose={() => setModalOpen(false)}
         title={editingIdea ? "Grundidee bearbeiten" : "Neue Grundidee"}
         submitLabel={editingIdea ? "Speichern" : "Hinzufügen"}
+        isSubmitting={submitting}
         onSubmit={handleSubmit}
       >
         <div className="space-y-4">

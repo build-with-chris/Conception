@@ -211,21 +211,35 @@ export default function ProjectBoardPage() {
       {/* Mobile: eine scrollbare Seite (Pillar → Grundideen → Videoideen). Desktop: zwei Spalten mit eigenem Scroll. */}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto md:overflow-hidden">
         <PillarPanel projectId={project.id} />
-        <div className="flex flex-col gap-4 p-3 md:min-h-0 md:flex-1 md:flex-row md:gap-6 md:overflow-hidden md:p-6">
-          <aside className="flex w-full shrink-0 flex-col rounded-2xl border border-zinc-200/80 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 md:min-h-0 md:w-[380px] md:flex-1 md:overflow-hidden md:p-5">
-            <GrundideenBoard
-              projectId={project.id}
-              selectedIdeaId={selectedIdea?.id ?? null}
-              onSelectIdea={setSelectedIdea}
-            />
+        <div className="flex flex-col gap-6 p-3 md:min-h-0 md:flex-1 md:flex-row md:gap-8 md:overflow-hidden md:p-6">
+          <aside className="flex w-full shrink-0 flex-col overflow-hidden rounded-2xl border-2 border-amber-200/80 bg-white shadow-md dark:border-amber-800/50 dark:bg-zinc-900/80 md:min-h-0 md:w-[380px] md:flex-1">
+            <div className="shrink-0 border-b border-amber-200/80 bg-amber-50/80 px-4 py-2 dark:border-amber-800/50 dark:bg-amber-950/30">
+              <span className="text-xs font-semibold uppercase tracking-widest text-amber-800/90 dark:text-amber-200/90">Kategorie</span>
+              <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">Grundideen</h2>
+            </div>
+            <div className="flex min-h-0 flex-1 flex-col p-3 md:p-5">
+              <GrundideenBoard
+                projectId={project.id}
+                selectedIdeaId={selectedIdea?.id ?? null}
+                onSelectIdea={setSelectedIdea}
+                hideSectionTitle
+              />
+            </div>
           </aside>
-          <main className="flex min-w-0 flex-1 flex-col rounded-2xl border border-zinc-200/80 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 md:min-h-[200px] md:min-h-0 md:overflow-hidden md:p-5">
-            <VideoideenBoard
-              projectId={project.id}
-              selectedIdeaId={selectedIdea?.id ?? null}
-              selectedIdeaTitle={selectedIdea?.title ?? null}
-              onClearIdeaFilter={() => setSelectedIdea(null)}
-            />
+          <main className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border-2 border-violet-200/80 bg-white shadow-md dark:border-violet-800/50 dark:bg-zinc-900/80 md:min-h-[200px] md:min-h-0">
+            <div className="shrink-0 border-b border-violet-200/80 bg-violet-50/80 px-4 py-2 dark:border-violet-800/50 dark:bg-violet-950/30">
+              <span className="text-xs font-semibold uppercase tracking-widest text-violet-800/90 dark:text-violet-200/90">Kategorie</span>
+              <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-100">Videoideen</h2>
+            </div>
+            <div className="flex min-h-0 flex-1 flex-col p-3 md:p-5">
+              <VideoideenBoard
+                projectId={project.id}
+                selectedIdeaId={selectedIdea?.id ?? null}
+                selectedIdeaTitle={selectedIdea?.title ?? null}
+                onClearIdeaFilter={() => setSelectedIdea(null)}
+                hideSectionTitle
+              />
+            </div>
           </main>
         </div>
       </div>
