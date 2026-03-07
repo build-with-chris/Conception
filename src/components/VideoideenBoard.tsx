@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import type { IdeaRow } from "@/lib/supabase/database.types";
 import type { VideoIdeaRow } from "@/lib/supabase/database.types";
+import DropdownSelect from "./DropdownSelect";
 import EmptyState from "./EmptyState";
 import QuickAddModal from "./QuickAddModal";
 import SearchFilterBar, { type FilterOption } from "./SearchFilterBar";
@@ -33,6 +34,8 @@ function rowToVideoIdea(r: VideoIdeaRow): VideoIdea {
     skizze_notes: r.skizze_notes ?? undefined,
     skizze_todos: Array.isArray(r.skizze_todos) ? r.skizze_todos : undefined,
     skizze_comment: r.skizze_comment ?? undefined,
+    script: r.script ?? undefined,
+    caption: r.caption ?? undefined,
   };
 }
 
@@ -96,6 +99,8 @@ export default function VideoideenBoard({
   const [formSkizzeTodos, setFormSkizzeTodos] = useState<string[]>([]);
   const [formSkizzeNewTodo, setFormSkizzeNewTodo] = useState("");
   const [formSkizzeComment, setFormSkizzeComment] = useState("");
+  const [formScript, setFormScript] = useState("");
+  const [formCaption, setFormCaption] = useState("");
   const [skizzeModalItem, setSkizzeModalItem] = useState<VideoIdea | null>(null);
 
   const fetchVideoIdeas = useCallback(async () => {
@@ -146,6 +151,8 @@ export default function VideoideenBoard({
     setFormSkizzeNotes("");
     setFormSkizzeTodos([]);
     setFormSkizzeComment("");
+    setFormScript("");
+    setFormCaption("");
     setModalOpen(true);
   };
 
@@ -159,6 +166,8 @@ export default function VideoideenBoard({
     setFormSkizzeNotes(item.skizze_notes ?? "");
     setFormSkizzeTodos(item.skizze_todos ?? []);
     setFormSkizzeComment(item.skizze_comment ?? "");
+    setFormScript(item.script ?? "");
+    setFormCaption(item.caption ?? "");
     setModalOpen(true);
   };
 
@@ -177,6 +186,10 @@ export default function VideoideenBoard({
       payload.skizze_notes = formSkizzeNotes.trim() || null;
       payload.skizze_todos = formSkizzeTodos;
       payload.skizze_comment = formSkizzeComment.trim() || null;
+    }
+    if (formStatus === "produktion") {
+      payload.script = formScript.trim() || null;
+      payload.caption = formCaption.trim() || null;
     }
     if (editingItem) {
       // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
@@ -247,13 +260,29 @@ export default function VideoideenBoard({
   };
 
   return (
-    <section className="flex h-full flex-col gap-5">
+    <section className="flex h-auto min-h-0 flex-col gap-3 md:h-full md:gap-5">
+      {selectedIdeaId && selectedIdeaTitle && (
+        <div className="sticky top-0 z-10 -mx-3 -mt-3 flex shrink-0 items-center gap-2 border-b border-zinc-200/80 bg-white/95 px-3 py-2 backdrop-blur dark:border-zinc-700 dark:bg-zinc-900/95 md:-mx-5 md:-mt-5 md:px-5">
+          <button
+            type="button"
+            onClick={onClearIdeaFilter}
+            className="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+            aria-label="Zurück zu allen Grundideen"
+          >
+            <span aria-hidden>←</span>
+            <span className="text-sm font-medium">Zurück</span>
+          </button>
+          <span className="min-w-0 truncate text-sm text-zinc-500 dark:text-zinc-400" title={selectedIdeaTitle}>
+            {selectedIdeaTitle}
+          </span>
+        </div>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
           Videoideen
         </h2>
         {selectedIdeaId && selectedIdeaTitle && (
-          <div className="flex items-center gap-2 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm dark:bg-zinc-800">
+          <div className="hidden items-center gap-2 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm dark:bg-zinc-800 md:flex">
             <span className="text-zinc-600 dark:text-zinc-400">
               Gefiltert nach: <strong>{selectedIdeaTitle}</strong>
             </span>
@@ -269,10 +298,10 @@ export default function VideoideenBoard({
         <button
           type="button"
           onClick={openAdd}
-          className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
           title="Neue Videoidee (⌘⇧V)"
         >
-          + Idee <span className="text-zinc-400">⌘⇧V</span>
+          + Idee <span className="hidden text-zinc-400 sm:inline">⌘⇧V</span>
         </button>
       </div>
 
@@ -285,7 +314,7 @@ export default function VideoideenBoard({
         onFilterToggle={toggleStatus}
       />
 
-      <div className="flex flex-1 flex-col gap-3 overflow-y-auto">
+      <div className="flex flex-col gap-3 overflow-visible md:min-h-0 md:flex-1 md:overflow-y-auto md:overscroll-behavior-contain">
         {loading ? (
           <p className="py-8 text-center text-sm text-zinc-500">Laden …</p>
         ) : filtered.length === 0 ? (
@@ -317,6 +346,7 @@ export default function VideoideenBoard({
               onStatusChange={handleStatusChange}
               onMoveToSkizze={(i) => setSkizzeModalItem(i)}
               onToggleFavorite={handleToggleFavorite}
+              onOpen={(i) => (i.status === "skizze" ? setSkizzeModalItem(i) : openEdit(i))}
             />
           ))
         )}
@@ -344,24 +374,15 @@ export default function VideoideenBoard({
               autoFocus
             />
           </div>
-          <div>
-            <label htmlFor="video-idea-id" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Grundidee (optional)
-            </label>
-            <select
-              id="video-idea-id"
-              value={formIdeaId}
-              onChange={(e) => setFormIdeaId(e.target.value)}
-              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-            >
-              <option value="">— Keine —</option>
-              {ideas.map((idea) => (
-                <option key={idea.id} value={idea.id}>
-                  {idea.title}
-                </option>
-              ))}
-            </select>
-          </div>
+          <DropdownSelect
+            id="video-idea-id"
+            label="Grundidee (optional)"
+            value={formIdeaId}
+            options={ideas.map((idea) => ({ value: idea.id, label: idea.title }))}
+            placeholder="— Keine —"
+            allowEmpty
+            onChange={setFormIdeaId}
+          />
           <div>
             <label htmlFor="video-note" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
               Notiz (optional)
@@ -375,23 +396,13 @@ export default function VideoideenBoard({
               className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
             />
           </div>
-          <div>
-            <label htmlFor="video-status" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Status
-            </label>
-            <select
-              id="video-status"
-              value={formStatus}
-              onChange={(e) => setFormStatus(e.target.value as VideoIdeaStatus)}
-              className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-            >
-              {STATUS_OPTIONS.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <DropdownSelect
+            id="video-status"
+            label="Status"
+            value={formStatus}
+            options={STATUS_OPTIONS.map((opt) => ({ value: opt.id, label: opt.label }))}
+            onChange={(v) => setFormStatus(v as VideoIdeaStatus)}
+          />
           {formStatus === "skizze" && (
             <>
               <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/30">
@@ -467,6 +478,51 @@ export default function VideoideenBoard({
                 </div>
               </div>
             </>
+          )}
+          {formStatus === "produktion" && (
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-4 dark:border-zinc-700 dark:bg-zinc-800/30">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                In Produktion
+              </p>
+              {formSkizzeNotes.trim() && (
+                <div className="mb-4">
+                  <label className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    Skizze-Notizen (aus Skizze)
+                  </label>
+                  <div className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                    {formSkizzeNotes}
+                  </div>
+                </div>
+              )}
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="video-script" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    Skript
+                  </label>
+                  <textarea
+                    id="video-script"
+                    value={formScript}
+                    onChange={(e) => setFormScript(e.target.value)}
+                    rows={5}
+                    placeholder="Text zum Video …"
+                    className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="video-caption" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    Caption
+                  </label>
+                  <textarea
+                    id="video-caption"
+                    value={formCaption}
+                    onChange={(e) => setFormCaption(e.target.value)}
+                    rows={4}
+                    placeholder="Caption-Text …"
+                    className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
+                  />
+                </div>
+              </div>
+            </div>
           )}
           <div>
             <label htmlFor="video-tags" className="mb-1 block text-sm font-medium text-zinc-700 dark:text-zinc-300">

@@ -27,54 +27,52 @@ export default function IdeaCard({ idea, isSelected, onSelect, onEdit, onDelete,
       tabIndex={onSelect ? 0 : undefined}
       onClick={onSelect ? (e) => { if (!(e.target as HTMLElement).closest("button")) onSelect(idea); } : undefined}
       onKeyDown={onSelect ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(idea); } } : undefined}
-      className={`group rounded-xl border p-5 transition-shadow dark:bg-zinc-900/80 ${
+      className={`group rounded-xl border p-4 transition-shadow active:opacity-95 dark:bg-zinc-900/80 md:p-5 ${
         isSelected
           ? "border-zinc-400 bg-zinc-50 shadow-sm ring-1 ring-zinc-300 dark:border-zinc-500 dark:bg-zinc-800/80 dark:ring-zinc-600"
           : "border-zinc-200/80 bg-white hover:border-zinc-300 hover:shadow-sm dark:border-zinc-700/80 dark:hover:border-zinc-600"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
-          {idea.title}
-        </h3>
-        <div className="flex shrink-0 items-center gap-1">
-          {onToggleFavorite && (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); onToggleFavorite(idea); }}
-              className={`rounded p-1.5 opacity-80 transition-opacity hover:opacity-100 ${idea.favorite ? "text-amber-500" : "text-zinc-400 hover:text-amber-500"}`}
-              aria-label={idea.favorite ? "Von Favoriten entfernen" : "Als Favorit markieren"}
-              title={idea.favorite ? "Favorit entfernen" : "Favorit"}
-            >
-              ★
-            </button>
-          )}
-          {(onEdit || onDelete) && (
-            <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-              {onEdit && (
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); onEdit(idea); }}
-                  className="rounded p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-400"
-                  aria-label="Bearbeiten"
-                >
-                  ✎
-                </button>
-              )}
-              {onDelete && (
-                <button
-                  type="button"
-                  onClick={(e) => { e.stopPropagation(); onDelete(idea); }}
-                  className="rounded p-1.5 text-zinc-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-zinc-800 dark:hover:text-red-400"
-                  aria-label="Löschen"
-                >
-                  🗑
-                </button>
-              )}
-            </div>
-          )}
-        </div>
+      <div className="flex justify-end gap-0.5">
+        {onToggleFavorite && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(idea); }}
+            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-lg transition-colors hover:bg-amber-50 active:bg-amber-100 dark:hover:bg-amber-950/50 dark:active:bg-amber-900/30 ${idea.favorite ? "text-amber-500" : "text-zinc-400 hover:text-amber-500"}`}
+            aria-label={idea.favorite ? "Von Favoriten entfernen" : "Als Favorit markieren"}
+            title={idea.favorite ? "Favorit entfernen" : "Favorit"}
+          >
+            ★
+          </button>
+        )}
+        {(onEdit || onDelete) && (
+          <div className="flex gap-0.5 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100">
+            {onEdit && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onEdit(idea); }}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-400"
+                aria-label="Bearbeiten"
+              >
+                ✎
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onDelete(idea); }}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-zinc-500 hover:bg-red-100 hover:text-red-600 dark:hover:bg-zinc-800 dark:hover:text-red-400"
+                aria-label="Löschen"
+              >
+                🗑
+              </button>
+            )}
+          </div>
+        )}
       </div>
+      <h3 className="mt-2 font-semibold text-zinc-900 dark:text-zinc-100">
+        {idea.title}
+      </h3>
       <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
         {idea.summary}
       </p>

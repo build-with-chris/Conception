@@ -50,8 +50,8 @@ export default function QuickAddModal({
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]"
       onClick={handleOverlayClick}
     >
-      <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
-        <div className="mb-5 flex items-center justify-between">
+      <div className="flex max-h-[90vh] w-full max-w-md flex-col rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
+        <div className="shrink-0 flex items-center justify-between border-b border-zinc-200 px-6 py-4 dark:border-zinc-700">
           <h2 id="quick-add-title" className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             {title}
           </h2>
@@ -64,9 +64,11 @@ export default function QuickAddModal({
             ✕
           </button>
         </div>
-        <form onSubmit={onSubmit} className="space-y-5">
-          {children}
-          <div className="flex justify-end gap-3 pt-2">
+        <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-5">
+            {children}
+          </div>
+          <div className="shrink-0 flex justify-end gap-3 border-t border-zinc-200 bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-900">
             <button
               type="button"
               onClick={onClose}

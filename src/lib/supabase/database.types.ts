@@ -105,6 +105,8 @@ export interface Database {
           skizze_notes: string | null;
           skizze_todos: string[];
           skizze_comment: string | null;
+          script: string | null;
+          caption: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -120,6 +122,8 @@ export interface Database {
           skizze_notes?: string | null;
           skizze_todos?: string[];
           skizze_comment?: string | null;
+          script?: string | null;
+          caption?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -135,6 +139,8 @@ export interface Database {
           skizze_notes?: string | null;
           skizze_todos?: string[];
           skizze_comment?: string | null;
+          script?: string | null;
+          caption?: string | null;
           created_at?: string;
           updated_at?: string;
         };

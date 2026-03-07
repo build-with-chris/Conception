@@ -158,18 +158,18 @@ export default function GrundideenBoard({ projectId, selectedIdeaId, onSelectIde
   };
 
   return (
-    <section className="flex h-full flex-col gap-5">
-      <div className="flex items-center justify-between">
+    <section className="flex h-auto min-h-0 flex-col gap-3 md:h-full md:gap-5">
+      <div className="flex shrink-0 items-center justify-between">
         <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
           Grundideen
         </h2>
         <button
           type="button"
           onClick={openAdd}
-          className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
           title="Neue Grundidee (⌘⇧I)"
         >
-          + Karte <span className="text-zinc-400">⌘⇧I</span>
+          + Karte <span className="hidden text-zinc-400 sm:inline">⌘⇧I</span>
         </button>
       </div>
 
@@ -182,7 +182,7 @@ export default function GrundideenBoard({ projectId, selectedIdeaId, onSelectIde
         onFilterToggle={toggleTag}
       />
 
-      <div className="flex flex-1 flex-col gap-4 overflow-y-auto">
+      <div className="flex flex-col gap-4 overflow-visible md:overscroll-behavior-contain md:min-h-0 md:flex-1 md:overflow-y-auto">
         {loading ? (
           <p className="py-8 text-center text-sm text-zinc-500">Laden …</p>
         ) : filtered.length === 0 ? (

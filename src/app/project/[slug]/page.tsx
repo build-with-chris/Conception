@@ -175,25 +175,27 @@ export default function ProjectBoardPage() {
   }
 
   return (
-    <div className="flex h-screen flex-col bg-zinc-100 dark:bg-zinc-950">
-      <div className="flex items-center gap-3 border-b border-zinc-200/80 bg-white/95 px-4 py-2 dark:border-zinc-800 dark:bg-zinc-950/95">
+    <div className="flex h-dvh max-h-screen flex-col overflow-hidden bg-zinc-100 dark:bg-zinc-950">
+      <div className="flex shrink-0 items-center gap-2 border-b border-zinc-200/80 bg-white/95 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-950/95 sm:gap-3 sm:px-4">
         <a
           href="/"
-          className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-400"
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:text-zinc-400 dark:hover:bg-zinc-800"
+          aria-label="Zurück zu Projekten"
         >
-          ← Projekte
+          ←
         </a>
-        <span className="text-zinc-300 dark:text-zinc-600">|</span>
-        <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{project.title}</span>
+        <span className="min-w-0 flex-1 truncate text-sm font-medium text-zinc-800 dark:text-zinc-200">
+          {project.title}
+        </span>
         <button
           type="button"
           onClick={() => setEditProjectOpen(true)}
-          className="ml-1 rounded-lg px-2 py-1 text-xs font-medium text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+          className="flex min-h-[44px] items-center rounded-lg px-3 py-2 text-xs font-medium text-zinc-500 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
           title="Projekt bearbeiten"
         >
           Bearbeiten
         </button>
-        <div className="ml-auto">
+        <div className="flex min-h-[44px] items-center">
           <UserButton />
         </div>
       </div>
@@ -206,23 +208,26 @@ export default function ProjectBoardPage() {
           router.replace(`/project/${newSlug}`);
         }}
       />
-      <PillarPanel projectId={project.id} />
-      <div className="flex min-h-0 flex-1 flex-col gap-6 p-5 md:flex-row md:p-6">
-        <aside className="flex min-h-[280px] shrink-0 flex-col rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 md:w-[380px]">
-          <GrundideenBoard
-            projectId={project.id}
-            selectedIdeaId={selectedIdea?.id ?? null}
-            onSelectIdea={setSelectedIdea}
-          />
-        </aside>
-        <main className="min-w-0 flex-1 overflow-hidden rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50">
-          <VideoideenBoard
-            projectId={project.id}
-            selectedIdeaId={selectedIdea?.id ?? null}
-            selectedIdeaTitle={selectedIdea?.title ?? null}
-            onClearIdeaFilter={() => setSelectedIdea(null)}
-          />
-        </main>
+      {/* Mobile: eine scrollbare Seite (Pillar → Grundideen → Videoideen). Desktop: zwei Spalten mit eigenem Scroll. */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto md:overflow-hidden">
+        <PillarPanel projectId={project.id} />
+        <div className="flex flex-col gap-4 p-3 md:min-h-0 md:flex-1 md:flex-row md:gap-6 md:overflow-hidden md:p-6">
+          <aside className="flex w-full shrink-0 flex-col rounded-2xl border border-zinc-200/80 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 md:min-h-0 md:w-[380px] md:flex-1 md:overflow-hidden md:p-5">
+            <GrundideenBoard
+              projectId={project.id}
+              selectedIdeaId={selectedIdea?.id ?? null}
+              onSelectIdea={setSelectedIdea}
+            />
+          </aside>
+          <main className="flex min-w-0 flex-1 flex-col rounded-2xl border border-zinc-200/80 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 md:min-h-[200px] md:min-h-0 md:overflow-hidden md:p-5">
+            <VideoideenBoard
+              projectId={project.id}
+              selectedIdeaId={selectedIdea?.id ?? null}
+              selectedIdeaTitle={selectedIdea?.title ?? null}
+              onClearIdeaFilter={() => setSelectedIdea(null)}
+            />
+          </main>
+        </div>
       </div>
     </div>
   );
