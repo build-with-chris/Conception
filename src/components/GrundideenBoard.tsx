@@ -133,9 +133,11 @@ export default function GrundideenBoard({ projectId, selectedIdeaId, onSelectIde
     try {
       const tags = formTags.split(",").map((t) => t.trim()).filter(Boolean);
       if (editingIdea) {
+        // @ts-expect-error Supabase client infers .update() arg as never with generic Database type
         const { error } = await supabase.from("ideas").update({ title: formTitle.trim(), summary: formSummary.trim(), tags }).eq("id", editingIdea.id);
         if (error) throw error;
       } else {
+        // @ts-expect-error Supabase client infers .insert() arg as never with generic Database type
         const { error } = await supabase.from("ideas").insert({ project_id: projectId, title: formTitle.trim(), summary: formSummary.trim(), tags });
         if (error) throw error;
       }
